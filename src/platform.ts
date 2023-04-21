@@ -1,7 +1,7 @@
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
-
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { ExamplePlatformAccessory } from './platformAccessory';
+import Bonjour from 'bonjour-service';
 
 /**
  * HomebridgePlatform
@@ -50,6 +50,14 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
    * must not be registered again to prevent "duplicate UUID" errors.
    */
   discoverDevices() {
+    const bonjour = new Bonjour();
+
+    bonjour.find({ type: 'googlecast' }, service => {
+      console.log(`found chromecast named "${service.name}" at ${service.addresses?.[0]}`);
+      bonjour.destroy();
+    });
+    /*
+
 
     // EXAMPLE ONLY
     // A real plugin you would discover accessories from the local network, cloud services
@@ -112,5 +120,6 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       }
     }
+    */
   }
 }
