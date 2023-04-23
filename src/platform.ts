@@ -17,9 +17,8 @@ export default class Platform implements DynamicPlatformPlugin {
 
   constructor(
     public readonly log: Logger,
-    public readonly config: PlatformConfig,
-    public readonly api: API,
-  ) {
+    private readonly config: PlatformConfig,
+    private readonly api: API) {
     this.log.debug('Finished initializing platform:', this.config.name);
 
     // When this event is fired it means Homebridge has restored all cached accessories from disk.
@@ -54,7 +53,7 @@ export default class Platform implements DynamicPlatformPlugin {
 
     bonjour.find({ type: 'googlecast' }, service => {
       this.log.debug(`found chromecast named "${service.name}" at ${service.addresses?.[0]} with id ${service.txt.id}`);
-
+      this.log.debug(JSON.stringify(service.txt));
       const uuid = this.api.hap.uuid.generate(service.txt.id);
       const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
@@ -64,6 +63,8 @@ export default class Platform implements DynamicPlatformPlugin {
         this.api.updatePlatformAccessories([existingAccessory]);
 
         new Accessory(this, existingAccessory);
+
+        //this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
 
       } else {
         const accessory = new this.api.platformAccessory(service.txt.md, uuid);
