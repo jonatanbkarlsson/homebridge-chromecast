@@ -1,6 +1,6 @@
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { ExamplePlatformAccessory } from './platformAccessory';
+import Accessory from './accessory';
 import Bonjour from 'bonjour-service';
 
 /**
@@ -8,7 +8,7 @@ import Bonjour from 'bonjour-service';
  * This class is the main constructor for your plugin, this is where you should
  * parse the user config and discover/register accessories with Homebridge.
  */
-export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
+export default class Platform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
 
@@ -53,9 +53,31 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
     const bonjour = new Bonjour();
 
     bonjour.find({ type: 'googlecast' }, service => {
-      console.log(`found chromecast named "${service.name}" at ${service.addresses?.[0]}`);
-      bonjour.destroy();
-    });
+      this.log.debug(`found chromecast named "${service.name}" at ${service.addresses?.[0]} with id ${service.txt.id}`);
+
+      const uuid = this.api.hap.uuid.generate(service.txt.id);
+      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+      if (existingAccessory) {
+        existingAccessory.context.device = service;
+
+        this.api.updatePlatformAccessories([existingAccessory]);
+
+        new Accessory(this, existingAccessory);
+
+      } else {
+        const accessory = new this.api.platformAccessory(service.txt.md, uuid);
+
+        accessory.context.device = service;
+        accessory.category = this.api.hap.Categories.TELEVISION;
+
+        new Accessory(this, accessory);
+
+        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      }
+    })
+
+
     /*
 
 
