@@ -37,7 +37,7 @@ export default class Platform implements DynamicPlatformPlugin {
 
         new Accessory(this, existingAccessory);
 
-        //this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
 
       } else {
         const accessory = new this.api.platformAccessory(service.txt.md, uuid);

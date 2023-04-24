@@ -13,6 +13,20 @@ export default class Accessory {
       .setCharacteristic(this.platform.Characteristic.SerialNumber, (this.accessory.context.device.txt.id).substring(0, 12))
       .setCharacteristic(this.platform.Characteristic.Name, this.accessory.context.device.txt.fn);
 
+    this.service = this.accessory.getService(this.platform.Service.Speaker) || this.accessory.addService(this.platform.Service.Speaker);
+
+    // NOTE: Handle on.
+    this.service.getCharacteristic(this.platform.Characteristic.Mute)
+      .onGet(() => 1)
+      .onSet(value => {
+        this.platform.log.debug('On', value);
+      })
+  }
+}
+
+/**
+ *
+ *
     this.service = this.accessory.getService(this.platform.Service.Switch) || this.accessory.addService(this.platform.Service.Switch);
 
     // NOTE: Handle on.
@@ -21,5 +35,4 @@ export default class Accessory {
       .onSet(value => {
         this.platform.log.debug('On', value);
       })
-  }
-}
+ */
